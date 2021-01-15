@@ -1,4 +1,5 @@
 library(dplyr)
+library(readr)
 
 path <- "/Users/angelica/Desktop/thesis"
 filename <- "roaming_sample_final.csv"
@@ -30,3 +31,12 @@ roaming_night <- roaming_time %>%
 
 #export the data set
 write_csv(roaming_night, "roaming_night.csv")
+
+
+#data set grouped by location based on latitude and longitude
+roaming_location <- roaming_time %>% 
+  group_by(latitude, longitude) %>%
+  summarize(count=n())
+
+#export the data set
+write_csv(roaming_location, "roaming_location.csv")
