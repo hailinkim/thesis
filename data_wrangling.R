@@ -56,4 +56,13 @@ roaming_country_time_location <- roaming_time %>%
   summarize(count=n())
 
 #export the data set
-write_csv(roaming_time_location, "roaming_time_location.csv")
+write_csv(roaming_country_time_location, "roaming_country_time_location.csv")
+
+
+#data set grouped by nationality(country_code), latitude, longitude
+roaming_country_location <- roaming_time %>% 
+  group_by(country_code, latitude, longitude) %>%
+  summarize(count=n())
+
+#export the data set
+write_csv(roaming_country_location, "roaming_country_location.csv")
