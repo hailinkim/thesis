@@ -40,3 +40,12 @@ roaming_location <- roaming_time %>%
 
 #export the data set
 write_csv(roaming_location, "roaming_location.csv")
+
+
+#data set grouped by time, latitude, longitude
+roaming_time_location <- roaming_time %>% 
+  group_by(time_period, latitude, longitude) %>%
+  summarize(count=n())
+
+#export the data set
+write_csv(roaming_time_location, "roaming_time_location.csv")
