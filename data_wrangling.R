@@ -20,8 +20,7 @@ roaming_time <- roaming %>%
                                  1600 <= time & time < 1800 ~ 'T09', #4pm ~ 6pm
                                  1800 <= time & time < 2000 ~ 'T10', #6pm ~ 8pm
                                  2000 <= time & time < 2200 ~ 'T11', #8pm ~ 10pm 
-                                 2200 <= time & time < 2400 ~ 'T12')) %>%  #10pm ~ 12am(midnight)  
-  select(time_period, latitude, longitude)
+                                 2200 <= time & time < 2400 ~ 'T12'))  #10pm ~ 12am(midnight)  
 
 #data set for late-night(10pm ~ midnight) call records
 roaming_night <- roaming_time %>% 
@@ -45,6 +44,15 @@ write_csv(roaming_location, "roaming_location.csv")
 #data set grouped by time, latitude, longitude
 roaming_time_location <- roaming_time %>% 
   group_by(time_period, latitude, longitude) %>%
+  summarize(count=n())
+
+#export the data set
+write_csv(roaming_time_location, "roaming_time_location.csv")
+
+
+#data set grouped by nationality(country_code), time, latitude, longitude
+roaming_country_time_location <- roaming_time %>% 
+  group_by(country_code, time_period, latitude, longitude) %>%
   summarize(count=n())
 
 #export the data set
