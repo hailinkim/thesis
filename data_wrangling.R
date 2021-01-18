@@ -1,8 +1,12 @@
 library(dplyr)
 library(readr)
+library(geosphere)
+library(sp)
+library(rgdal)
 
 path <- "/Users/angelica/Desktop/thesis"
 filename <- "roaming_sample_final.csv"
+
 roaming <- paste0(path,"/",filename)
 
 roaming <- read.csv(roaming)
@@ -20,7 +24,41 @@ roaming_time <- roaming %>%
                                  1600 <= time & time < 1800 ~ 'T09', #4pm ~ 6pm
                                  1800 <= time & time < 2000 ~ 'T10', #6pm ~ 8pm
                                  2000 <= time & time < 2200 ~ 'T11', #8pm ~ 10pm 
-                                 2200 <= time & time < 2400 ~ 'T12'))  #10pm ~ 12am(midnight)  
+                                 2200 <= time & time < 2400 ~ 'T12'),
+         time_period2 = case_when(time_period=='T01' ~ '12am ~ 2am',
+                                  time_period=='T02' ~ '2am ~ 4am',
+                                  time_period=='T03' ~ '4am ~ 6am',
+                                  time_period=='T04' ~ '6am ~ 8am',
+                                  time_period=='T05' ~ '8am ~ 10am',
+                                  time_period=='T06' ~ '10am ~ 12pm',
+                                  time_period=='T07' ~ '12pm ~ 2pm',
+                                  time_period=='T08' ~ '2pm ~ 4pm',
+                                  time_period=='T09' ~ '4pm ~ 6pm',
+                                  time_period=='T10' ~ '6pm ~ 8pm',
+                                  time_period=='T11' ~ '8pm ~ 10pm',
+                                  time_period=='T12' ~ '10pm ~ 12am')) %>% 
+           select(-c(date, time, zip)) 
+
+write_csv(roaming_time, "roaming_time.csv")
+
+roaming_seoul <- inner_join(x=roaming_time, y=seoul,by.x=c("latitude","longitude"), by.y=c("lat","long"))
+
+
+
+roaming_country <- roaming_time %>% 
+  group_by(country_code) %>%
+  summarize(count=n())
+write_csv(roaming_country, "roaming_country.csv")
+
+roaming_time_period <- roaming_time %>% 
+  group_by(time_period) %>%
+  summarize(count=n())
+write_csv(roaming_time_period, "roaming_time_period.csv")
+
+roaming_time_country <- roaming_time %>% 
+  group_by(time_period, country_code) %>%
+  summarize(count=n())
+write_csv(roaming_time_country, "roaming_time_country.csv")
 
 #data set for late-night(10pm ~ midnight) call records
 roaming_night <- roaming_time %>% 
@@ -52,11 +90,8 @@ write_csv(roaming_time_location, "roaming_time_location.csv")
 
 #data set grouped by nationality(country_code), time, latitude, longitude
 roaming_country_time_location <- roaming_time %>% 
-  group_by(country_code, time_period, latitude, longitude) %>%
+  group_by(country_code, time_period, time_period2, latitude, longitude) %>%
   summarize(count=n())
-
-#export the data set
-write_csv(roaming_country_time_location, "roaming_country_time_location.csv")
 
 
 #data set grouped by nationality(country_code), latitude, longitude
@@ -65,4 +100,29 @@ roaming_country_location <- roaming_time %>%
   summarize(count=n())
 
 #export the data set
-write_csv(roaming_country_location, "roaming_country_location.csv")
+write_csv(roaming_dist, "roaming_dist.csv")
+
+
+library(dplyr)
+roaming2 <- roaming_time %>% 
+  group_by(country_code, time_period, time_period2, latitude, longitude) %>% 
+  dplyr::summarise(count=n())
+write_csv(roaming2, "roaming2.csv")
+
+# use the vegdist function to generate a geodesic distance matrix
+require(plyr)
+roaming_grid <- count(roaming_dist[,])
+
+require(vegan)
+dist_grid <- vegdist(roaming_grid, method = "gower")
+d_matrix <- as.matrix(dist_grid)
+
+# cluster all points using a hierarchical clustering approach
+hc <- hclust(dist_grid, method="ward.D2")
+cluster <- cutree(hc, k=900)
+roaming_cluster <- cbind(roaming_grid, cluster, roaming_grid$freq)
+roaming_cluster2 <- roaming_cluster %>% 
+  select(-c(freq, `roaming_grid$freq`))
+roaming_cluster2$id <- sample.int(10000, 9310)
+
+write_csv(roaming_cluster2, "roaming_cluster.csv")
