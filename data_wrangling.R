@@ -125,4 +125,5 @@ roaming_cluster2 <- roaming_cluster %>%
   select(-c(freq, `roaming_grid$freq`))
 roaming_cluster2$id <- sample.int(10000, 9310)
 
+#export the data set with clusters
 write_csv(roaming_cluster2, "roaming_cluster.csv")
