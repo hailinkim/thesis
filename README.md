@@ -1,4 +1,4 @@
-# thesis
-•	Analyzed foreign tourists’ mobile phone call record data set to explore tourist behavior in Seoul, Korea
-•	Performed hierarchical clustering and data visualization using R and QGIS, Geographic Information System software, to examine the impact of spatiotemporal factors on the tourists’ mobility patterns 
-•	Provided data-driven solutions to address inconveniences often experienced by the foreign tourists
+# Analysis of Spatial Density Utilizing The Big Data of Floating Population of Seoul City
+Analyzed foreign tourists’ mobile phone call record data set to explore tourist behavior in Seoul, Korea. Performed hierarchical clustering and data visualization using R and QGIS, Geographic Information System software, to examine the impact of spatiotemporal factors on the tourists’ mobility patterns. Provided data-driven solutions to address inconveniences often experienced by the foreign tourists
+
+Link to the journal: https://scholarworks.umass.edu/foss4g/vol15/iss1/27/#
