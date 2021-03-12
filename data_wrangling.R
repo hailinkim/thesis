@@ -1,8 +1,5 @@
 library(dplyr)
 library(readr)
-library(geosphere)
-library(sp)
-library(rgdal)
 
 path <- "/Users/angelica/Desktop/thesis"
 filename <- "roaming_sample_final.csv"
@@ -40,9 +37,6 @@ roaming_time <- roaming %>%
            select(-c(date, time, zip)) 
 
 write_csv(roaming_time, "roaming_time.csv")
-
-roaming_seoul <- inner_join(x=roaming_time, y=seoul,by.x=c("latitude","longitude"), by.y=c("lat","long"))
-
 
 
 roaming_country <- roaming_time %>% 
@@ -99,31 +93,9 @@ roaming_country_location <- roaming_time %>%
   group_by(country_code, latitude, longitude) %>%
   summarize(count=n())
 
+roaming_place <- roaming_time %>% 
+  select(latitude, longitude)
+
 #export the data set
 write_csv(roaming_dist, "roaming_dist.csv")
 
-
-library(dplyr)
-roaming2 <- roaming_time %>% 
-  group_by(country_code, time_period, time_period2, latitude, longitude) %>% 
-  dplyr::summarise(count=n())
-write_csv(roaming2, "roaming2.csv")
-
-# use the vegdist function to generate a geodesic distance matrix
-require(plyr)
-roaming_grid <- count(roaming_dist[,])
-
-require(vegan)
-dist_grid <- vegdist(roaming_grid, method = "gower")
-d_matrix <- as.matrix(dist_grid)
-
-# cluster all points using a hierarchical clustering approach
-hc <- hclust(dist_grid, method="ward.D2")
-cluster <- cutree(hc, k=900)
-roaming_cluster <- cbind(roaming_grid, cluster, roaming_grid$freq)
-roaming_cluster2 <- roaming_cluster %>% 
-  select(-c(freq, `roaming_grid$freq`))
-roaming_cluster2$id <- sample.int(10000, 9310)
-
-#export the data set with clusters
-write_csv(roaming_cluster2, "roaming_cluster.csv")
